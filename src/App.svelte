@@ -32,7 +32,7 @@
   });
 </script>
 
-<div class="p-5 sd:p-10 pt-48 h-screen flex flex-col overflow-auto items-center bg-gradient-to-r from-violet-500 to-fuchsia-500">
+<div class="p-5 md:p-10 pt-48 h-screen flex flex-col overflow-auto items-center bg-gradient-to-r from-violet-500 to-fuchsia-500">
   {#if freq}
     <h1 in:fade={{ duration: 300 }}>
       Todays wordle appears <span class:visible={showPrevious} in:fade={{ duration: 700 }} class="text-[cyan]">{freq.toFixed(2)}</span> times in a million
