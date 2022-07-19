@@ -2,7 +2,9 @@
   import { answers } from "./answers.js";
   import { onMount } from "svelte";
   import { fly, fade } from "svelte/transition";
+  import { freqs as freqdata } from "./freqs.js";
 
+  export const delay = (s) => new Promise((resolve) => { setTimeout(resolve, s * 1000); });
   const ONEDAY = 24 * 60 * 60 * 1000;
   const OFFSET = 387; // answers.findIndex(w => w === "madam");
 
@@ -17,16 +19,16 @@
   let showPrevious = false;
   onMount(async () => {
     setTimeout(async () => {
-      let response = await fetch(`https://api.datamuse.com/words?sp=${todaysWord}&md=f&max=1`).then((res) => res.json());
-
-      freq = +response[0].tags[0].slice(2);
+      const data = freqdata[todaysWord];
+      if (data) freq = data.freqperc * 10000;
     }, 500);
 
     setTimeout(async () => {
       for (let i = 0; i < otherWords.length; i++) {
         let w = otherWords[i];
-        let response = await fetch(`https://api.datamuse.com/words?sp=${w}&md=f&max=1`).then((res) => res.json());
-        otherFreqs[i] = +response[0].tags[0].slice(2);
+        await delay(0.2);
+        let data = freqdata[w];
+        if (data) otherFreqs[i] = data.freqperc * 10000;
       }
     }, 3000);
     setTimeout(() => (showPrevious = true), 2500);
@@ -37,16 +39,15 @@
   <div class="min-h-[630px] md:pt-10 sm:max-w-[80vw] flex flex-col items-center px-10">
     {#if freq}
       <h1 in:fade={{ duration: 300 }}>
-        Todays wordle appears <span class:visible={showPrevious} in:fade={{ duration: 700 }} class="text-[cyan]">{freq.toFixed(2)}</span> times in a million
-        words.
+        Tämän päivän wordle esiintyy <span class:visible={showPrevious} in:fade={{ duration: 700 }} class="text-[cyan]">{freq ? freq.toFixed(2) : "???"}</span> kertaa miljoonassa sanassa.
         <br />
         {#if showPrevious}
-          <span in:fade={{ duration: 500 }}>Previous:</span>
+          <span in:fade={{ duration: 500 }}>Aiemmat:</span>
         {/if}
       </h1>
     {/if}
     {#each otherFreqs as freq, i}
-      <h2 in:fly={{ y: 200, duration: 500 }}>{otherWords[i]}: {freq.toFixed(2)}</h2>
+      <h2 in:fly={{ y: 200, duration: 500 }}>{otherWords[i]}: {freq ? freq.toFixed(2) : "???"}</h2>
     {/each}
   </div>
 </div>
